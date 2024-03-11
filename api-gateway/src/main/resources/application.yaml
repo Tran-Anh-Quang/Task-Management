@@ -1,0 +1,46 @@
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8070/eureka
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: TRACE
+          gateway.route.RouteDefinitionLocator: INFO
+    root: INFO
+
+server:
+  port: 5000
+
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      default-filters: DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedHeaders: '*'
+            allowedMethods: '*'
+            allowedOrigins: '*'
+      routes:
+        - id: USER-SERVICE
+          predicates:
+            - Path=/auth/**, /api/user/**
+          uri: lb://USER-SERVICE
+        - id: TASK-SERVICE
+          predicates:
+            - Path=/api/tasks/**
+          uri: lb://TASK-SERVICE
+        - id: SUBMISSION-SERVICE
+          predicates:
+            - Path=/api/submissions/**
+          uri: lb://SUBMISSION-SERVICE
