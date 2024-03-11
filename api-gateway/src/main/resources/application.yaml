@@ -1,42 +1,46 @@
-#============================================
-# = Config App Name & client URL
-#============================================
-server.port=5000
-spring.application.name=API-GATEWAY
-#============================================
-# = Config log of gateway
-#============================================
-logging.level.root=INFO
-logging.level.org.springframework.cloud.gateway.route.RouteDefinitionLocator=INFO
-logging.level.org.springframework.cloud.gateway=TRACE
-#============================================
-# = User Service Route
-#============================================
-spring.cloud.gateway.routes[0].id=USER-SERVICE
-spring.cloud.gateway.routes[0].uri=lb://USER-SERVICE
-spring.cloud.gateway.routes[0].predicates[0]=Path=/auth/**
-spring.cloud.gateway.routes[0].predicates[1]=Path=/api/user/**
-#============================================
-# = Task Service Route
-#============================================
-spring.cloud.gateway.routes[1].id=TASK-SERVICE
-spring.cloud.gateway.routes[1].uri=lb://TASK-SERVICE
-spring.cloud.gateway.routes[1].predicates[0]=Path=/api/tasks/**
-#============================================
-# = Submission Service Route
-#============================================
-spring.cloud.gateway.routes[2].id=SUBMISSION-SERVICE
-spring.cloud.gateway.routes[2].uri=lb://SUBMISSION-SERVICE
-spring.cloud.gateway.routes[2].predicates[0]=Path=/api/submissions/**
-#============================================
-# = Config cors
-#============================================
-spring.cloud.gateway.default-filters=DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-spring.cloud.gateway.globalcors.cors-configurations.'[/**]'.allowedOrigins=*
-spring.cloud.gateway.globalcors.cors-configurations.'[/**]'.allowedMethods=*
-spring.cloud.gateway.globalcors.cors-configurations.'[/**]'.allowedHeaders=*
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8070/eureka
+  instance:
+    prefer-ip-address: true
 
-eureka.instance.prefer-ip-address=true
-eureka.client.fetch-registry=true
-eureka.client.register-with-eureka=true
-eureka.client.service-url.defaultZone=http://localhost:8070/eureka
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: TRACE
+          gateway.route.RouteDefinitionLocator: INFO
+    root: INFO
+
+server:
+  port: 5000
+
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      default-filters: DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedHeaders: '*'
+            allowedMethods: '*'
+            allowedOrigins: '*'
+      routes:
+        - id: USER-SERVICE
+          predicates:
+            - Path=/auth/**, /api/user/**
+          uri: lb://USER-SERVICE
+        - id: TASK-SERVICE
+          predicates:
+            - Path=/api/tasks/**
+          uri: lb://TASK-SERVICE
+        - id: SUBMISSION-SERVICE
+          predicates:
+            - Path=/api/submissions/**
+          uri: lb://SUBMISSION-SERVICE
